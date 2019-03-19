@@ -19,7 +19,7 @@ const requestedTest = () => {
 
 	    const {statusCode, body} = await get('/requested', { json: true });
 
-            expect(statusCode).to.equal(200);
+            expect(statusCode).to.equal(500);
             expect(body).to.eql(['test124']);
         });
     });
