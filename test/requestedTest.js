@@ -10,7 +10,7 @@ const requestedTest = () => {
         it('POST: should request an entry', async () => {
 	  const {statusCode, body} = await post('/requested/test124');
 	  
-	  expect(statusCode).to.equal(304);
+	  expect(statusCode).to.equal(200);
 	  expect(body).to.equal('added requested term: test124');
 	});
 
