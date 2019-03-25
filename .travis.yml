@@ -10,5 +10,6 @@ before_script:
 jobs:
   include:
     - stage: "Client Tests"
+      node_js: "11"
       before_script: cd client
       script: yarn install && yarn test
