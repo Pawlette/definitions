@@ -2,10 +2,7 @@ language: node_js
 node_js:
   - "node"
 services:
-  - postgresql
-before_script:
-  - ./scripts/initDb.js test
-
+  postgresql
 jobs:
   include:
     - stage: "Server Tests"
@@ -13,7 +10,9 @@ jobs:
         - "8"
         - "10"
         - "11"
-      before_script: echo "Running tests against $(node -v) ..."
+      before_script:
+        - ./scripts/initDb.js test
+        - echo "Running tests against $(node -v) ..."
       script: yarn test
     - stage: "Client Tests"
       before_script: cd client
