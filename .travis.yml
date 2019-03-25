@@ -1,16 +1,21 @@
 language: node_js
-node_js:
-  - "8"
-  - "10"
-  - "11"
+rvm:
+ - 11
+ - node
 services:
   postgresql
+
 jobs:
   include:
     - stage: "Server Tests"
-    - before_script:
-        - ./scripts/initDb.js test
-        - echo "Running tests against $(node -v) ..."
+    install: ./scripts/initDb.js test
+    - before_script: echo "Running tests against $(node -v) ..."
+      node_js:
+        - "8"
+      script: yarn test
+      - before_script: echo "Running tests against $(node -v) ..."
+      node_js:
+        - "11"
       script: yarn test
     - stage: "Client Tests"
       before_script: cd client
