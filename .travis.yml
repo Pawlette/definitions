@@ -1,16 +1,14 @@
 language: node_js
 node_js:
-  - "node"
+  - "8"
+  - "10"
+  - "11"
 services:
   postgresql
 jobs:
   include:
     - stage: "Server Tests"
-      node_js:
-        - "8"
-        - "10"
-        - "11"
-      before_script:
+    - before_script:
         - ./scripts/initDb.js test
         - echo "Running tests against $(node -v) ..."
       script: yarn test
