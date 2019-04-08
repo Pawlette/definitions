@@ -1,4 +1,5 @@
 import React from 'react';
+import 'jest-dom/extend-expect'
 import RequestForm from '../src/Forms/RequestForm';
 import { render, fireEvent, waitForElement} from 'react-testing-library';
 const domTestingLib = require('dom-testing-library')
@@ -15,46 +16,53 @@ global.fetch = mockResponse();
 
 it('Renders form and submit term', async () => {
   // Arrange
-  const defQueries = customQueries.default
+  const defaultQueries = customQueries.default
   const { getByText, getByTestId } = render(<RequestForm />,
-    { queries: { ...queries, ...defQueries }, })
-  const form = getByTestId('request-form')
-  const input = getByTestId('request-input')
-  const button = getByText(/Submit/)
-
+    { queries: { ...queries, ...defaultQueries }, })
+  const requestForm = getByTestId('request-form')
+  const inputTerm = getByTestId('request-input')
+  const submitButton = getByText(/Submit/)
   // Act
-  fireEvent.submit(form)
+  fireEvent.submit(requestForm)
 
   // Assert
-  expect(input.value).toBe('')
-  expect(button.innerHTML).toBe('Submit')
-  await waitForElement(() => getByText(/This is a required question/));
-  expect(getByText(/This is a required question/).textContent).toBe('This is a required question')
+  const inputError = await waitForElement(() => getByText(/This is a required question/));
+  expect(inputError).toBeVisible()
+  expect(inputError).toHaveClass('errorMessage')
+  expect(inputTerm.value).toBe('')
+  expect(submitButton).toBeVisible()
 
   // Act
-  fireEvent.change(input, {target: {value: 'Queer'}})
+  fireEvent.change(inputTerm, {target: {value: 'Queer'}})
 
   // Assert
-  expect(input.value).toBe('Queer')
+  expect(inputTerm.value).toBe('Queer')
 
   // Act
-   await fireEvent.submit(form)
+   await fireEvent.submit(requestForm)
   
    // Assert
   expect(fetch).toHaveBeenCalledWith('/requested/Queer', {
     method: 'POST',
   });
+  expect(inputTerm.value).toBe('')
+
   // Arrange
   const snackbar = await waitForElement(() => getByText(/Your request for Queer was successful/).parentElement)
-  const dismissBttn = snackbar.querySelector('button')
-  expect(dismissBttn.innerHTML).toBe('Dismiss')
-
-  fireEvent.click(dismissBttn)
+  expect(snackbar).toBeVisible()
+  expect(snackbar).toHaveClass('queerSnackbar')
+  const snackbarDismissBttn = snackbar.querySelector('button')
+  expect(snackbarDismissBttn.innerHTML).toBe('Dismiss')
 
   // Act
+  fireEvent.click(snackbarDismissBttn)
   try {
     await waitForElement(() => getByText(/Your request for Queer was successful/))
   } catch (e) {
+    // Assert
     expect(e.message).toBe('Unable to find the element')
   }
+
+  // Assert
+  expect(requestForm).not.toContainElement(snackbar)
 });
